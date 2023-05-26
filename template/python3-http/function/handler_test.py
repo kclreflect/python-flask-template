@@ -1,4 +1,5 @@
 from handler import handle
+from handler_types import Event, Context
 
 # Test your handler here
 
@@ -7,5 +8,5 @@ from handler import handle
 
 
 def test_handle():
-    # assert handle("input") == "input"
+    # assert handle(Event(b'', '', '', '', ''), Context('')) == "input"
     pass

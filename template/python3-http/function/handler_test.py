@@ -8,5 +8,5 @@ from handler_types import Event, Context
 
 
 def test_handle():
-    # assert handle(Event(b'', '', '', '', ''), Context('')) == "input"
+    # assert handle(Event(b'', '', '', '', ''), Context('', 200, '', '')).statusCode == 200
     pass

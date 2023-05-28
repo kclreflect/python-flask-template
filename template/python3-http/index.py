@@ -18,6 +18,9 @@ class Event:
 class Context:
     def __init__(self):
         self.hostname = os.getenv('HOSTNAME', 'localhost')
+        self.statusCode = 200
+        self.body = {}
+        self.headers = {}
 
 def format_status_code(resp):
     if 'statusCode' in resp:
@@ -62,7 +65,7 @@ def call_handler(path):
     context = Context()
     response_data = handler.handle(event, context)
     
-    resp = format_response(response_data)
+    resp = format_response(vars(response_data))
     return resp
 
 if __name__ == '__main__':

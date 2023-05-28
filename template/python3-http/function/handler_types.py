@@ -14,3 +14,6 @@ class Event:
 @dataclass
 class Context:
     hostname: str
+    statusCode: int
+    body: dict | str
+    headers: Any

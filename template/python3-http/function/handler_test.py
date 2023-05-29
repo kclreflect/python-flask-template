@@ -7,6 +7,6 @@ from handler_types import Event, Context
 # https://docs.openfaas.com/reference/yaml/#function-build-args-build-args
 
 
-def test_handle():
+def test_handle() -> None:
     # assert handle(Event(b'', '', '', '', ''), Context('', 200, '', '')).statusCode == 200
     pass

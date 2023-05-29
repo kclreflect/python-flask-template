@@ -15,5 +15,5 @@ class Event:
 class Context:
     hostname: str
     statusCode: int
-    body: dict | str
+    body: dict[Any, Any] | str
     headers: Any

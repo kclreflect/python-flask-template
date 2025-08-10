@@ -1,6 +1,9 @@
-ARG PYTHON_VERSION=3.11
-FROM --platform=${TARGETPLATFORM:-linux/amd64} ghcr.io/openfaas/of-watchdog:0.9.10 as watchdog
-FROM --platform=${TARGETPLATFORM:-linux/amd64} python:${PYTHON_VERSION}-slim-buster as build
+ARG PYTHON_VERSION=3.12
+ARG DEBIAN_OS=slim-bookworm
+ARG UPGRADE_PACKAGES=false
+
+FROM --platform=${TARGETPLATFORM:-linux/amd64} ghcr.io/openfaas/of-watchdog:0.10.7 AS watchdog
+FROM --platform=${TARGETPLATFORM:-linux/amd64} python:${PYTHON_VERSION}-${DEBIAN_OS} AS build
 
 COPY --from=watchdog /fwatchdog /usr/bin/fwatchdog
 RUN chmod +x /usr/bin/fwatchdog
@@ -8,13 +11,15 @@ RUN chmod +x /usr/bin/fwatchdog
 ARG ADDITIONAL_PACKAGE
 # Alternatively use ADD https:// (which will not be cached by Docker builder)
 
-RUN apt-get -qy update \
-    && apt-get -qy install gcc make ${ADDITIONAL_PACKAGE} \
+RUN apt-get update -qy \
+    && if [ "${UPGRADE_PACKAGES}" = "true" ] || [ "${UPGRADE_PACKAGES}" = "1" ]; then apt-get upgrade -qy; fi \
+    && apt-get install -qy --no-install-recommends gcc make ${ADDITIONAL_PACKAGE} \
     && rm -rf /var/lib/apt/lists/*
 
 # Add non root user
-RUN addgroup --system app && adduser app --system --ingroup app
-RUN chown app /home/app
+RUN addgroup --system app \
+    && adduser app --system --ingroup app --home /home/app \
+    && chown app:app /home/app
 
 USER app
 
@@ -42,13 +47,13 @@ USER root
 
 COPY --chown=app:app function/   .
 
-FROM build as test
+FROM build AS test
 ARG TEST_COMMAND=tox
 ARG TEST_ENABLED=true
 RUN [ "$TEST_ENABLED" = "false" ] && echo "skipping tests" || eval "$TEST_COMMAND"
 
 
-FROM build as ship
+FROM build AS ship
 WORKDIR /home/app/
 
 #configure WSGI server and healthcheck
